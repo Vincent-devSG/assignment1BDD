@@ -20,6 +20,8 @@ where o.odate BETWEEN '2014-1-1' AND '2014-12-31'
 select 'Query 02' as '';
 -- For each known country of origin, its name, the number of products from that country, their lowest price, their highest price
 -- Pour chaque pays d'orgine connu, son nom, le nombre de produits de ce pays, leur plus bas prix, leur plus haut prix
+select origin, count(*) as nb_products, min(price) as min_price, max(price) as max_price
+from products group by origin order by count(*) desc;
 
 
 select 'Query 03' as '';
