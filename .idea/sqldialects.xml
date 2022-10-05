@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="SqlDialectMappings">
+    <file url="file://$PROJECT_DIR$/Example.v1.1/File to Submit/LYNCH.Nancy.TURING.Alan.LISKOV.Barbara.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/Example.v1.1/Resources/database.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/Example.v1.1/Resources/queries.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/database.sql" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/queries.sql" dialect="MySQL" />
+  </component>
+</project>
