@@ -4,6 +4,4 @@
 # Datasource local storage ignored files
 /dataSources/
 /dataSources.local.xml
-.idea/dataSources.xml
-.idea/sqldialects.xml
-./idea
+.idea
