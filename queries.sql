@@ -15,7 +15,7 @@ select 'Query 01' as '';
 -- The countries of residence the supplier had to ship products to in 2014
 -- Les pays de résidence où le fournisseur a dû envoyer des produits en 2014
 select DISTINCT p.origin from products p join orders o on p.pid = o.pid
-where o.odate BETWEEN '2014-1-1' AND '2014-12-31'
+where o.odate BETWEEN '2014-1-1' AND '2014-12-31';
 
 select 'Query 02' as '';
 -- For each known country of origin, its name, the number of products from that country, their lowest price, their highest price
