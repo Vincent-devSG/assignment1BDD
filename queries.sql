@@ -14,14 +14,25 @@ set session sql_mode = 'ONLY_FULL_GROUP_BY';
 select 'Query 01' as '';
 -- The countries of residence the supplier had to ship products to in 2014
 -- Les pays de résidence où le fournisseur a dû envoyer des produits en 2014
-select DISTINCT p.origin from products p join orders o on p.pid = o.pid
-where o.odate BETWEEN '2014-1-1' AND '2014-12-31';
+SELECT DISTINCT
+    P.origin
+FROM
+    products P
+
+        JOIN orders O on P.pid = O.pid
+WHERE
+    o.odate BETWEEN '2014-1-1' AND '2014-12-31';
 
 select 'Query 02' as '';
 -- For each known country of origin, its name, the number of products from that country, their lowest price, their highest price
 -- Pour chaque pays d'orgine connu, son nom, le nombre de produits de ce pays, leur plus bas prix, leur plus haut prix
-select origin, count(*) as nb_products, min(price) as min_price, max(price) as max_price
-from products group by origin order by count(*) desc;
+SELECT
+    P.origin, COUNT(*) as nb_products, MIN(P.price) as min_price, MAX(P.price) as max_price
+FROM
+    products P
+GROUP BY
+    P.origin
+ORDER BY COUNT(*) DESC ;
 
 
 select 'Query 03' as '';
@@ -31,6 +42,7 @@ SELECT
     C.cid, C.cname
 FROM
     Customers C
+<<<<<<< HEAD
 
         CROSS JOIN (
         SELECT DISTINCT
@@ -58,8 +70,35 @@ GROUP BY
 HAVING
         COUNT(X.pid) = COUNT(R.pid);
 
+=======
+>>>>>>> 6f59991e65b2012a2049c51ebf5bc4e08b091008
 
+        CROSS JOIN (
+        SELECT DISTINCT
+            P.pid
+        FROM
+            Customers C
+                INNER JOIN Orders O ON C.cid = O.cid
+                INNER JOIN Products P ON O.pid = P.pid
+        WHERE
+                C.cname = 'Smith' AND
+                YEAR(O.odate) = 2014) X
 
+        LEFT JOIN (
+        SELECT DISTINCT
+            C.cid,
+            P.pid
+        FROM
+            Customers C
+                INNER JOIN Orders O ON C.cid = O.cid
+                INNER JOIN Products P ON O.pid = P.pid
+        WHERE
+                YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
+GROUP BY
+    C.cid
+HAVING
+        COUNT(X.pid) = COUNT(R.pid);
+test
 select 'Query 04' as '';
 -- For each customer and each product, the customer's name, the product's name, the total amount ordered by the customer for that product,
 -- sorted by customer name (alphabetical order), then by total amount ordered (highest value first), then by product id (ascending order)
