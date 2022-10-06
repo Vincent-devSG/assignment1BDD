@@ -68,7 +68,7 @@ GROUP BY
     C.cid
 HAVING
         COUNT(X.pid) = COUNT(R.pid);
-
+test
 select 'Query 04' as '';
 -- For each customer and each product, the customer's name, the product's name, the total amount ordered by the customer for that product,
 -- sorted by customer name (alphabetical order), then by total amount ordered (highest value first), then by product id (ascending order)
