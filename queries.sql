@@ -27,6 +27,37 @@ from products group by origin order by count(*) desc;
 select 'Query 03' as '';
 -- The customers who ordered in 2014 all the products (at least) that the customers named 'Smith' ordered in 2013
 -- Les clients ayant commandé en 2014 tous les produits (au moins) commandés par les clients nommés 'Smith' en 2013
+SELECT
+    C.cid, C.cname
+FROM
+    Customers C
+
+        CROSS JOIN (
+        SELECT DISTINCT
+            P.pid
+        FROM
+            Customers C
+                INNER JOIN Orders O ON C.cid = O.cid
+                INNER JOIN Products P ON O.pid = P.pid
+        WHERE
+                C.cname = 'Smith' AND
+                YEAR(O.odate) = 2013) X
+
+        LEFT JOIN (
+        SELECT DISTINCT
+            C.cid,
+            P.pid
+        FROM
+            Customers C
+                INNER JOIN Orders O ON C.cid = O.cid
+                INNER JOIN Products P ON O.pid = P.pid
+        WHERE
+                YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
+GROUP BY
+    C.cid
+HAVING
+        COUNT(X.pid) = COUNT(R.pid);
+
 
 
 select 'Query 04' as '';
@@ -36,14 +67,30 @@ select 'Query 04' as '';
 -- trié par nom de client (ordre alphabétique), puis par montant total commandé (plus grance valeur d'abord), puis par id de produit (croissant)
 
 
+
 select 'Query 05' as '';
 -- The customers who only ordered products originating from their country
 -- Les clients n'ayant commandé que des produits provenant de leur pays
+SELECT DISTINCT c1.*
+
+FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
+    AND NOT EXISTS(
+            SELECT DISTINCT c1.cid, o.cid
+            FROM customers c JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
+        );
+
 
 
 select 'Query 06' as '';
 -- The customers who ordered only products originating from foreign countries 
 -- Les clients n'ayant commandé que des produits provenant de pays étrangers
+SELECT DISTINCT c1.*
+
+FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
+    AND NOT EXISTS(
+            SELECT DISTINCT c1.cid, o.cid
+            FROM customers c JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
+        );
 
 
 select 'Query 07' as '';
