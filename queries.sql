@@ -42,36 +42,6 @@ SELECT
     C.cid, C.cname
 FROM
     Customers C
-<<<<<<< HEAD
-
-        CROSS JOIN (
-        SELECT DISTINCT
-            P.pid
-        FROM
-            Customers C
-                INNER JOIN Orders O ON C.cid = O.cid
-                INNER JOIN Products P ON O.pid = P.pid
-        WHERE
-                C.cname = 'Smith' AND
-                YEAR(O.odate) = 2013) X
-
-        LEFT JOIN (
-        SELECT DISTINCT
-            C.cid,
-            P.pid
-        FROM
-            Customers C
-                INNER JOIN Orders O ON C.cid = O.cid
-                INNER JOIN Products P ON O.pid = P.pid
-        WHERE
-                YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
-GROUP BY
-    C.cid
-HAVING
-        COUNT(X.pid) = COUNT(R.pid);
-
-=======
->>>>>>> 6f59991e65b2012a2049c51ebf5bc4e08b091008
 
         CROSS JOIN (
         SELECT DISTINCT
@@ -98,7 +68,8 @@ GROUP BY
     C.cid
 HAVING
         COUNT(X.pid) = COUNT(R.pid);
-test
+
+
 select 'Query 04' as '';
 -- For each customer and each product, the customer's name, the product's name, the total amount ordered by the customer for that product,
 -- sorted by customer name (alphabetical order), then by total amount ordered (highest value first), then by product id (ascending order)
