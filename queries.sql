@@ -35,27 +35,37 @@ ORDER BY COUNT(*) DESC;
 select 'Query 03' as '';
 -- The customers who ordered in 2014 all the products (at least) that the customers named 'Smith' ordered in 2013
 -- Les clients ayant commandé en 2014 tous les produits (au moins) commandés par les clients nommés 'Smith' en 2013
-SELECT C.cid,
-       C.cname
-FROM Customers C
+SELECT
+    C.cid, C.cname
+FROM
+    Customers C
 
-         CROSS JOIN (
-    SELECT DISTINCT P.pid
-    FROM Customers C
-             INNER JOIN Orders O ON C.cid = O.cid
-             INNER JOIN Products P ON O.pid = P.pid
-    WHERE C.cname = 'Smith'
-      AND YEAR(O.odate) = 2014) X
+        CROSS JOIN (
+        SELECT DISTINCT
+            P.pid
+        FROM
+            Customers C
+                INNER JOIN Orders O ON C.cid = O.cid
+                INNER JOIN Products P ON O.pid = P.pid
+        WHERE
+                C.cname = 'Smith' AND
+                YEAR(O.odate) = 2013) X
 
-         LEFT JOIN (
-    SELECT DISTINCT C.cid,
-                    P.pid
-    FROM Customers C
-             INNER JOIN Orders O ON C.cid = O.cid
-             INNER JOIN Products P ON O.pid = P.pid
-    WHERE YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
-GROUP BY C.cid
-HAVING COUNT(X.pid) = COUNT(R.pid);
+        LEFT JOIN (
+        SELECT DISTINCT
+            C.cid,
+            P.pid
+        FROM
+            Customers C
+                INNER JOIN Orders O ON C.cid = O.cid
+                INNER JOIN Products P ON O.pid = P.pid
+        WHERE
+                YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
+GROUP BY
+    C.cid
+HAVING
+        COUNT(X.pid) = COUNT(R.pid);
+
 
 
 select 'Query 04' as '';
@@ -70,6 +80,7 @@ select 'Query 05' as '';
 -- Les clients n'ayant commandé que des produits provenant de leur pays
 SELECT DISTINCT c1.*
 
+<<<<<<< HEAD
 FROM customers c1
          JOIN orders o ON c1.cid = o.cid
          JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
@@ -81,15 +92,11 @@ FROM customers c1
         );
 
 
-
 select 'Query 06' as '';
 -- The customers who ordered only products originating from foreign countries 
 -- Les clients n'ayant commandé que des produits provenant de pays étrangers
 SELECT DISTINCT c1.*
-
-FROM customers c1
-         JOIN orders o ON c1.cid = o.cid
-         JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
+FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON (c1.residence <> p.origin OR c1.residence IS NULL) AND p.pid = o.pid
     AND NOT EXISTS(
             SELECT DISTINCT c1.cid, o.cid
             FROM customers c
