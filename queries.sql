@@ -52,7 +52,7 @@ FROM
                 INNER JOIN Products P ON O.pid = P.pid
         WHERE
                 C.cname = 'Smith' AND
-                YEAR(O.odate) = 2014) X
+                YEAR(O.odate) = 2013) X
 
         LEFT JOIN (
         SELECT DISTINCT
@@ -83,12 +83,11 @@ select 'Query 05' as '';
 -- Les clients n'ayant commandé que des produits provenant de leur pays
 SELECT DISTINCT c1.*
 
-FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
+FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON (p.origin = c1.residence OR p.origin IS NULL) AND p.pid = o.pid
     AND NOT EXISTS(
             SELECT DISTINCT c1.cid, o.cid
             FROM customers c JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
         );
-
 
 
 select 'Query 06' as '';
@@ -96,7 +95,7 @@ select 'Query 06' as '';
 -- Les clients n'ayant commandé que des produits provenant de pays étrangers
 SELECT DISTINCT c1.*
 
-FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
+FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON (c1.residence <> p.origin OR c1.residence IS NULL) AND p.pid = o.pid
     AND NOT EXISTS(
             SELECT DISTINCT c1.cid, o.cid
             FROM customers c JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
