@@ -14,60 +14,48 @@ set session sql_mode = 'ONLY_FULL_GROUP_BY';
 select 'Query 01' as '';
 -- The countries of residence the supplier had to ship products to in 2014
 -- Les pays de résidence où le fournisseur a dû envoyer des produits en 2014
-SELECT DISTINCT
-    P.origin
-FROM
-    products P
+SELECT DISTINCT P.origin
+FROM products P
 
-        JOIN orders O on P.pid = O.pid
-WHERE
-    o.odate BETWEEN '2014-1-1' AND '2014-12-31';
+         JOIN orders O on P.pid = O.pid
+WHERE o.odate BETWEEN '2014-1-1' AND '2014-12-31';
 
 select 'Query 02' as '';
 -- For each known country of origin, its name, the number of products from that country, their lowest price, their highest price
 -- Pour chaque pays d'orgine connu, son nom, le nombre de produits de ce pays, leur plus bas prix, leur plus haut prix
-SELECT
-    P.origin, COUNT(*) as nb_products, MIN(P.price) as min_price, MAX(P.price) as max_price
-FROM
-    products P
-GROUP BY
-    P.origin
-ORDER BY COUNT(*) DESC ;
+SELECT P.origin,
+       COUNT(*)     as nb_products,
+       MIN(P.price) as min_price,
+       MAX(P.price) as max_price
+FROM products P
+GROUP BY P.origin
+ORDER BY COUNT(*) DESC;
 
 
 select 'Query 03' as '';
 -- The customers who ordered in 2014 all the products (at least) that the customers named 'Smith' ordered in 2013
 -- Les clients ayant commandé en 2014 tous les produits (au moins) commandés par les clients nommés 'Smith' en 2013
-SELECT
-    C.cid, C.cname
-FROM
-    Customers C
+SELECT C.cid,
+       C.cname
+FROM Customers C
 
-        CROSS JOIN (
-        SELECT DISTINCT
-            P.pid
-        FROM
-            Customers C
-                INNER JOIN Orders O ON C.cid = O.cid
-                INNER JOIN Products P ON O.pid = P.pid
-        WHERE
-                C.cname = 'Smith' AND
-                YEAR(O.odate) = 2014) X
+         CROSS JOIN (
+    SELECT DISTINCT P.pid
+    FROM Customers C
+             INNER JOIN Orders O ON C.cid = O.cid
+             INNER JOIN Products P ON O.pid = P.pid
+    WHERE C.cname = 'Smith'
+      AND YEAR(O.odate) = 2014) X
 
-        LEFT JOIN (
-        SELECT DISTINCT
-            C.cid,
-            P.pid
-        FROM
-            Customers C
-                INNER JOIN Orders O ON C.cid = O.cid
-                INNER JOIN Products P ON O.pid = P.pid
-        WHERE
-                YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
-GROUP BY
-    C.cid
-HAVING
-        COUNT(X.pid) = COUNT(R.pid);
+         LEFT JOIN (
+    SELECT DISTINCT C.cid,
+                    P.pid
+    FROM Customers C
+             INNER JOIN Orders O ON C.cid = O.cid
+             INNER JOIN Products P ON O.pid = P.pid
+    WHERE YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
+GROUP BY C.cid
+HAVING COUNT(X.pid) = COUNT(R.pid);
 
 
 select 'Query 04' as '';
@@ -77,16 +65,19 @@ select 'Query 04' as '';
 -- trié par nom de client (ordre alphabétique), puis par montant total commandé (plus grance valeur d'abord), puis par id de produit (croissant)
 
 
-
 select 'Query 05' as '';
 -- The customers who only ordered products originating from their country
 -- Les clients n'ayant commandé que des produits provenant de leur pays
 SELECT DISTINCT c1.*
 
-FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
+FROM customers c1
+         JOIN orders o ON c1.cid = o.cid
+         JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
     AND NOT EXISTS(
             SELECT DISTINCT c1.cid, o.cid
-            FROM customers c JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
+            FROM customers c
+                     JOIN orders o ON c1.cid = o.cid
+                     JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
         );
 
 
@@ -96,22 +87,41 @@ select 'Query 06' as '';
 -- Les clients n'ayant commandé que des produits provenant de pays étrangers
 SELECT DISTINCT c1.*
 
-FROM customers c1 JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
+FROM customers c1
+         JOIN orders o ON c1.cid = o.cid
+         JOIN products p ON c1.residence <> p.origin AND p.pid = o.pid
     AND NOT EXISTS(
             SELECT DISTINCT c1.cid, o.cid
-            FROM customers c JOIN orders o ON c1.cid = o.cid JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
+            FROM customers c
+                     JOIN orders o ON c1.cid = o.cid
+                     JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
         );
 
 
 select 'Query 07' as '';
 -- The difference between 'USA' residents' per-order average quantity and 'France' residents' (USA - France)
 -- La différence entre quantité moyenne par commande des clients résidant aux 'USA' et celle des clients résidant en 'France' (USA - France)
+SELECT (SELECT AVG(O1.quantity) as USA_Quantity from orders O1 join customers c on O1.cid = c.cid where c.residence = 'USA') as Average_Quantity_USA,
+       (SELECT AVG(O2.quantity) as FRANCE_Quantity from orders O2 join customers c1 on O2.cid = c1.cid where c1.residence = 'FRANCE') as Average_Quantity_FRANCE;
 
 
 select 'Query 08' as '';
 -- The products ordered throughout 2014, i.e. ordered each month of that year
 -- Les produits commandés tout au long de 2014, i.e. commandés chaque mois de cette année
-
+SELECT DISTINCT P.pname as Produits_Commandés_tout_au_long_de_2014 from products P join orders o on P.pid = o.pid where
+        MONTH(o.odate)=1 AND
+        MONTH(o.odate)=2 AND
+        MONTH(o.odate)=3 AND
+        MONTH(o.odate)=4 AND
+        MONTH(o.odate)=5 AND
+        MONTH(o.odate)=6 AND
+        MONTH(o.odate)=7 AND
+        MONTH(o.odate)=8 AND
+        MONTH(o.odate)=9 AND
+        MONTH(o.odate)=10 AND
+        MONTH(o.odate)=11 AND
+        MONTH(o.odate)=12 AND
+        YEAR(o.odate) = 2014;
 
 select 'Query 09' as '';
 -- The customers who ordered all the products that cost less than $5
@@ -161,11 +171,14 @@ select 'Query 17' as '';
 select 'Query 18' as '';
 -- The products whose price is greater than all products from 'India'
 -- Les produits plus chers que tous les produits d'origine 'India'
+SELECT * from products p where p.price > (SELECT MAX(p1.price) from products p1 where p1.origin = 'INDIA');
 
 
 select 'Query 19' as '';
 -- The products ordered by the smallest number of customers (products never ordered are excluded)
 -- Les produits commandés par le plus petit nombre de clients (les produits jamais commandés sont exclus)
+SELECT p.*,count(o.cid) as Number_of_customers from products p join orders o on p.pid = o.pid GROUP BY p.pname LIMIT 1
+
 
 
 select 'Query 20' as '';
