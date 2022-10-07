@@ -79,8 +79,6 @@ select 'Query 05' as '';
 -- The customers who only ordered products originating from their country
 -- Les clients n'ayant commandé que des produits provenant de leur pays
 SELECT DISTINCT c1.*
-
-<<<<<<< HEAD
 FROM customers c1
          JOIN orders o ON c1.cid = o.cid
          JOIN products p ON c1.residence = p.origin AND p.pid = o.pid
@@ -184,7 +182,7 @@ SELECT * from products p where p.price > (SELECT MAX(p1.price) from products p1 
 select 'Query 19' as '';
 -- The products ordered by the smallest number of customers (products never ordered are excluded)
 -- Les produits commandés par le plus petit nombre de clients (les produits jamais commandés sont exclus)
-SELECT p.*,count(o.cid) as Number_of_customers from products p join orders o on p.pid = o.pid GROUP BY p.pname LIMIT 1
+SELECT p.*,count(o.cid) as Number_of_customers from products p join orders o on p.pid = o.pid GROUP BY p.pname LIMIT 1;
 
 
 
