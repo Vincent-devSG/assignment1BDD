@@ -132,6 +132,10 @@ where MONTH(o.odate) = 1
 select 'Query 09' as '';
 -- The customers who ordered all the products that cost less than $5
 -- Les clients ayant commandé tous les produits de moins de $5
+SELECT * FROM customers WHERE -1 NOT IN
+        (SELECT COALESCE(pid_display, -1) FROM (SELECT DISTINCT  pid AS pid_display FROM orders WHERE customers.cid = orders.cid) AS Table_A
+                RIGHT JOIN (SELECT pid from products where price < 5) AS Table_B ON Table_A.pid_display = Table_B.pid);
+
 
 
 select 'Query 10' as '';
@@ -142,21 +146,37 @@ select 'Query 10' as '';
 select 'Query 11' as '';
 -- The customers who ordered the largest number of products
 -- Les clients ayant commandé le plus grand nombre de produits
+SELECT c.*, count(DISTINCT o.pid) AS product_number
+FROM customers c JOIN orders o ON c.cid = o.cid
+GROUP BY c.cid ORDER BY count(DISTINCT o.pid) DESC LIMIT 1;
 
 
 select 'Query 12' as '';
 -- The products ordered by all the customers living in 'France'
 -- Les produits commandés par tous les clients vivant en 'France'
+SELECT o.*
+FROM customers c JOIN orders o on c.cid = o.cid
+WHERE c.residence = 'France';
 
 
 select 'Query 13' as '';
 -- The customers who live in the same country customers named 'Smith' live in (customers 'Smith' not shown in the result)
 -- Les clients résidant dans les mêmes pays que les clients nommés 'Smith' (en excluant les Smith de la liste affichée)
+SELECT c.*
+FROM customers c
+WHERE c.residence = (SELECT residence FROM customers WHERE cname = 'Smith') AND c.cname <> 'Smith';
 
 
 select 'Query 14' as '';
 -- The customers who ordered the largest total amount in 2014
--- Les clients ayant commandé pour le plus grand montant total sur 2014 
+-- Les clients ayant commandé pour le plus grand montant total sur 2014
+SELECT c.*
+from customers c join
+     (SELECT Cid_C, sum(tot1) as TOTAL_Spent
+      from (select c.cid as Cid_C, o.cid as Cid_O, sum(p.price * o.quantity) as tot1
+            from orders o join customers c on o.cid = c.cid join products p on o.pid = p.pid and YEAR(o.odate) = 2014 group by o.cid, p.pid order by o.cid) AS X
+      WHERE Cid_C = Cid_O group by Cid_O order by TOTAL_Spent DESC LIMIT 1) AS Z
+     on cid = Z.Cid_C;
 
 
 select 'Query 15' as '';
@@ -189,6 +209,7 @@ SELECT p.*, count(o.cid) as Number_of_customers
 from products p
          join orders o on p.pid = o.pid
 GROUP BY p.pname
+ORDER BY p.pname
 LIMIT 1;
 
 
