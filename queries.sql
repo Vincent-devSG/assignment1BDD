@@ -62,7 +62,17 @@ select 'Query 04' as '';
 -- sorted by customer name (alphabetical order), then by total amount ordered (highest value first), then by product id (ascending order)
 -- Par client et par produit, le nom du client, le nom du produit, le montant total de ce produit commandé par le client,
 -- trié par nom de client (ordre alphabétique), puis par montant total commandé (plus grance valeur d'abord), puis par id de produit (croissant)
+SELECT c.cname, p.pname,p.price*o.quantity as total_amount_ordered,p.pid
+from products p join orders o on p.pid = o.pid join customers c on o.cid = c.cid
+ORDER BY c.cname;
 
+SELECT c.cname, p.pname,p.price*o.quantity as total_amount_ordered,p.pid
+from products p join orders o on p.pid = o.pid join customers c on o.cid = c.cid
+ORDER BY  total_amount_ordered DESC;
+
+SELECT c.cname, p.pname,p.price*o.quantity as total_amount_ordered,p.pid
+from products p join orders o on p.pid = o.pid join customers c on o.cid = c.cid
+ORDER BY  p.pid ASC;
 
 select 'Query 05' as '';
 -- The customers who only ordered products originating from their country
@@ -195,6 +205,9 @@ from customers c
 select 'Query 15' as '';
 -- The products with the largest per-order average amount
 -- Les produits dont le montant moyen par commande est le plus élevé
+SELECT p.*, AVG(o.quantity*p.price) as avg_price_per_order
+from products p  join orders o on p.pid = o.pid
+GROUP BY p.pname ORDER BY avg_price_per_order DESC LIMIT 1;
 
 
 select 'Query 16' as '';
