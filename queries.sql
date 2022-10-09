@@ -60,9 +60,19 @@ HAVING COUNT(X.pid) = COUNT(R.pid);
 select 'Query 04' as '';
 -- For each customer and each product, the customer's name, the product's name, the total amount ordered by the customer for that product,
 -- sorted by customer name (alphabetical order), then by total amount ordered (highest value first), then by product id (ascending order)
--- Par client et par produit, le nom du client, le nom du produit, le montant total de ce produit commandé par le client, 
+-- Par client et par produit, le nom du client, le nom du produit, le montant total de ce produit commandé par le client,
 -- trié par nom de client (ordre alphabétique), puis par montant total commandé (plus grance valeur d'abord), puis par id de produit (croissant)
+SELECT c.cname, p.pname,p.price*o.quantity as total_amount_ordered,p.pid
+from products p join orders o on p.pid = o.pid join customers c on o.cid = c.cid
+ORDER BY c.cname;
 
+SELECT c.cname, p.pname,p.price*o.quantity as total_amount_ordered,p.pid
+from products p join orders o on p.pid = o.pid join customers c on o.cid = c.cid
+ORDER BY  total_amount_ordered DESC;
+
+SELECT c.cname, p.pname,p.price*o.quantity as total_amount_ordered,p.pid
+from products p join orders o on p.pid = o.pid join customers c on o.cid = c.cid
+ORDER BY  p.pid ASC;
 
 select 'Query 05' as '';
 -- The customers who only ordered products originating from their country
@@ -80,7 +90,7 @@ FROM customers c1
 
 
 select 'Query 06' as '';
--- The customers who ordered only products originating from foreign countries 
+-- The customers who ordered only products originating from foreign countries
 -- Les clients n'ayant commandé que des produits provenant de pays étrangers
 SELECT DISTINCT c1.*
 FROM customers c1
@@ -193,8 +203,11 @@ from customers c
 
 
 select 'Query 15' as '';
--- The products with the largest per-order average amount 
+-- The products with the largest per-order average amount
 -- Les produits dont le montant moyen par commande est le plus élevé
+SELECT p.*, AVG(o.quantity*p.price) as avg_price_per_order
+from products p  join orders o on p.pid = o.pid
+GROUP BY p.pname ORDER BY avg_price_per_order DESC LIMIT 1;
 
 
 select 'Query 16' as '';
@@ -242,5 +255,6 @@ FROM (SELECT p.origin as country FROM products p UNION SELECT c.residence as cou
          JOIN (SELECT p.origin AS origin, COUNT(DISTINCT p.pid) AS pidamount, NULL AS cidamount FROM products p GROUP BY p.origin UNION SELECT c.residence AS origin, null as pidamount,COUNT(DISTINCT c.cid) AS cidamount FROM customers  c GROUP BY c.residence)counter
               ON counter.origin=countries.country OR (countries.country IS NULL AND counter.origin IS NULL)
 GROUP BY countries.country;
+
 
 
