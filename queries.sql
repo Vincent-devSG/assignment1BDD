@@ -62,7 +62,7 @@ HAVING COUNT(X.pid) = COUNT(R.pid);
 select 'Query 04' as '';
 -- For each customer and each product, the customer's name, the product's name, the total amount ordered by the customer for that product,
 -- sorted by customer name (alphabetical order), then by total amount ordered (highest value first), then by product id (ascending order)
--- Par client et par produit, le nom du client, le nom du produit, le montant total de ce produit commandé par le client, 
+-- Par client et par produit, le nom du client, le nom du produit, le montant total de ce produit commandé par le client,
 -- trié par nom de client (ordre alphabétique), puis par montant total commandé (plus grance valeur d'abord), puis par id de produit (croissant)
 
 
@@ -82,7 +82,7 @@ FROM customers c1
 
 
 select 'Query 06' as '';
--- The customers who ordered only products originating from foreign countries 
+-- The customers who ordered only products originating from foreign countries
 -- Les clients n'ayant commandé que des produits provenant de pays étrangers
 SELECT DISTINCT c1.*
 FROM customers c1
@@ -147,26 +147,42 @@ select 'Query 11' as '';
 select 'Query 12' as '';
 -- The products ordered by all the customers living in 'France'
 -- Les produits commandés par tous les clients vivant en 'France'
-
+SELECT p.*
+from products p
+         join orders o on p.pid = o.pid
+         join (select * from customers where customers.residence = 'FRANCE') as customers1 on customers1.cid = o.cid;
 
 select 'Query 13' as '';
 -- The customers who live in the same country customers named 'Smith' live in (customers 'Smith' not shown in the result)
 -- Les clients résidant dans les mêmes pays que les clients nommés 'Smith' (en excluant les Smith de la liste affichée)
+SELECT c.*
+from customers c
+         join (SELECT residence from customers where cname = 'SMITH')
+    as customers2 on c.residence = customers2.residence
+WHERE c.cname NOT IN (SELECT c.cname from customers where c.cname = 'SMITH');
+
 
 
 select 'Query 14' as '';
 -- The customers who ordered the largest total amount in 2014
--- Les clients ayant commandé pour le plus grand montant total sur 2014 
+-- Les clients ayant commandé pour le plus grand montant total sur 2014
 
 
 select 'Query 15' as '';
--- The products with the largest per-order average amount 
+-- The products with the largest per-order average amount
 -- Les produits dont le montant moyen par commande est le plus élevé
 
 
 select 'Query 16' as '';
 -- The products ordered by the customers living in 'USA'
 -- Les produits commandés par les clients résidant aux 'USA'
+SELECT DISTINCT p.*
+from products p
+         join orders o on p.pid = o.pid
+         join customers c on o.cid = c.cid
+where c.residence = 'USA';
+
+
 
 
 select 'Query 17' as '';
@@ -185,16 +201,13 @@ where p.price > (SELECT MAX(p1.price) from products p1 where p1.origin = 'INDIA'
 select 'Query 19' as '';
 -- The products ordered by the smallest number of customers (products never ordered are excluded)
 -- Les produits commandés par le plus petit nombre de clients (les produits jamais commandés sont exclus)
-SELECT p.*, count(o.cid) as Number_of_customers
-from products p
-         join orders o on p.pid = o.pid
-GROUP BY p.pname
-LIMIT 1;
+SELECT DISTINCT p.*, COUNT(o.cid) from products p join orders o on p.pid = o.pid
+GROUP BY p.pname LIMIT 1;
 
 
 
 select 'Query 20' as '';
 -- For all countries listed in tables products or customers, including unknown countries: the name of the country, the number of customers living in this country, the number of products originating from that country
--- Pour chaque pays listé dans les tables products ou customers, y compris les pays inconnus : le nom du pays, le nombre de clients résidant dans ce pays, le nombre de produits provenant de ce pays 
+-- Pour chaque pays listé dans les tables products ou customers, y compris les pays inconnus : le nom du pays, le nombre de clients résidant dans ce pays, le nombre de produits provenant de ce pays
 
 
