@@ -158,7 +158,10 @@ LIMIT 1;
 select 'Query 12' as '';
 -- The products ordered by all the customers living in 'France'
 -- Les produits commandés par tous les clients vivant en 'France'
-
+SELECT p.*
+from products p
+         join orders o on p.pid = o.pid
+         join (select * from customers where customers.residence = 'FRANCE') as customers1 on customers1.cid = o.cid;
 
 select 'Query 13' as '';
 -- The customers who live in the same country customers named 'Smith' live in (customers 'Smith' not shown in the result)
