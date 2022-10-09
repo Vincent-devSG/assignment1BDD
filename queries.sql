@@ -210,8 +210,8 @@ select 'Query 17' as '';
 -- The pairs of customers who ordered the same product en 2014, and that product. Display 3 columns: cname1, cname2, pname, with cname1 < cname2
 -- Les paires de client ayant commandé le même produit en 2014, et ce produit. Afficher 3 colonnes : cname1, cname2, pname, avec cname1 < cname2
 SELECT DISTINCT Table1.cname as Customer_1, Table2.cname AS Customer_2, Table1.pname AS Product
-from (select c.cname, o.cid, o.pid, p.pname from customers c join orders o on c.cid = o.cid join products p on o.pid = p.pid) as Table1
-         JOIN (select c.cname, o.cid, o.pid from customers c join orders o on c.cid = o.cid join products p on o.pid = p.pid) as Table2 on Table2.pid = Table1.pid and Table2.cid <> Table1.cid
+from (select c.cname, o.cid, o.pid, p.pname from customers c join orders o on c.cid = o.cid join products p on o.pid = p.pid and YEAR(o.odate) = 2014) as Table1
+         JOIN (select c.cname, o.cid, o.pid from customers c join orders o on c.cid = o.cid join products p on o.pid = p.pid and YEAR(o.odate) = 2014) as Table2 on Table2.pid = Table1.pid and Table2.cid <> Table1.cid
 where Table1.cname < Table2.cname;
 
 select 'Query 18' as '';
