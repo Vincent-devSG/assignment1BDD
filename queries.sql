@@ -187,7 +187,9 @@ select 'Query 15' as '';
 select 'Query 16' as '';
 -- The products ordered by the customers living in 'USA'
 -- Les produits commandés par les clients résidant aux 'USA'
-
+SELECT DISTINCT p.*
+FROM products p JOIN orders o ON p.pid = o.pid JOIN customers c ON o.cid = c.cid
+WHERE c.residence = (SELECT c.residence FROM customers c WHERE c.residence = 'USA');
 
 select 'Query 17' as '';
 -- The pairs of customers who ordered the same product en 2014, and that product. Display 3 columns: cname1, cname2, pname, with cname1 < cname2
@@ -208,8 +210,8 @@ select 'Query 19' as '';
 SELECT p.*, count(o.cid) as Number_of_customers
 from products p
          join orders o on p.pid = o.pid
-GROUP BY p.pname
-ORDER BY p.pname
+GROUP BY p.pid
+ORDER BY Number_of_customers
 LIMIT 1;
 
 
