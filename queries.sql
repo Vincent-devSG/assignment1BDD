@@ -209,7 +209,10 @@ WHERE c.residence = (SELECT c.residence FROM customers c WHERE c.residence = 'US
 select 'Query 17' as '';
 -- The pairs of customers who ordered the same product en 2014, and that product. Display 3 columns: cname1, cname2, pname, with cname1 < cname2
 -- Les paires de client ayant commandé le même produit en 2014, et ce produit. Afficher 3 colonnes : cname1, cname2, pname, avec cname1 < cname2
-
+SELECT DISTINCT Table1.cname as Customer_1, Table2.cname AS Customer_2, Table1.pname AS Product
+from (select c.cname, o.cid, o.pid, p.pname from customers c join orders o on c.cid = o.cid join products p on o.pid = p.pid) as Table1
+         JOIN (select c.cname, o.cid, o.pid from customers c join orders o on c.cid = o.cid join products p on o.pid = p.pid) as Table2 on Table2.pid = Table1.pid and Table2.cid <> Table1.cid
+where Table1.cname < Table2.cname;
 
 select 'Query 18' as '';
 -- The products whose price is greater than all products from 'India'
@@ -233,6 +236,11 @@ LIMIT 1;
 
 select 'Query 20' as '';
 -- For all countries listed in tables products or customers, including unknown countries: the name of the country, the number of customers living in this country, the number of products originating from that country
--- Pour chaque pays listé dans les tables products ou customers, y compris les pays inconnus : le nom du pays, le nombre de clients résidant dans ce pays, le nombre de produits provenant de ce pays 
+-- Pour chaque pays listé dans les tables products ou customers, y compris les pays inconnus : le nom du pays, le nombre de clients résidant dans ce pays, le nombre de produits provenant de ce pays
+SELECT countries.country,SUM(IFNULL(counter.cidamount,0)) as Nb_Customers, SUM(IFNULL(counter.pidamount,0)) as Nb_Products
+FROM (SELECT p.origin as country FROM products p UNION SELECT c.residence as country FROM customers c)countries
+         JOIN (SELECT p.origin AS origin, COUNT(DISTINCT p.pid) AS pidamount, NULL AS cidamount FROM products p GROUP BY p.origin UNION SELECT c.residence AS origin, null as pidamount,COUNT(DISTINCT c.cid) AS cidamount FROM customers  c GROUP BY c.residence)counter
+              ON counter.origin=countries.country OR (countries.country IS NULL AND counter.origin IS NULL)
+GROUP BY countries.country;
 
 
