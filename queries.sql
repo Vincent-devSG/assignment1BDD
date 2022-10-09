@@ -39,21 +39,19 @@ SELECT C.cid,
        C.cname
 FROM Customers C
 
-         CROSS JOIN (
-    SELECT DISTINCT P.pid
-    FROM Customers C
-             INNER JOIN Orders O ON C.cid = O.cid
-             INNER JOIN Products P ON O.pid = P.pid
-    WHERE C.cname = 'Smith'
-      AND YEAR(O.odate) = 2013) X
+         CROSS JOIN (SELECT DISTINCT P.pid
+                     FROM Customers C
+                              INNER JOIN Orders O ON C.cid = O.cid
+                              INNER JOIN Products P ON O.pid = P.pid
+                     WHERE C.cname = 'Smith'
+                       AND YEAR(O.odate) = 2013) X
 
-         LEFT JOIN (
-    SELECT DISTINCT C.cid,
-                    P.pid
-    FROM Customers C
-             INNER JOIN Orders O ON C.cid = O.cid
-             INNER JOIN Products P ON O.pid = P.pid
-    WHERE YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
+         LEFT JOIN (SELECT DISTINCT C.cid,
+                                    P.pid
+                    FROM Customers C
+                             INNER JOIN Orders O ON C.cid = O.cid
+                             INNER JOIN Products P ON O.pid = P.pid
+                    WHERE YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
 GROUP BY C.cid
 HAVING COUNT(X.pid) = COUNT(R.pid);
 
@@ -132,8 +130,11 @@ where MONTH(o.odate) = 1
 select 'Query 09' as '';
 -- The customers who ordered all the products that cost less than $5
 -- Les clients ayant commandé tous les produits de moins de $5
-SELECT * FROM customers WHERE -1 NOT IN
-        (SELECT COALESCE(pid_display, -1) FROM (SELECT DISTINCT  pid AS pid_display FROM orders WHERE customers.cid = orders.cid) AS Table_A
+SELECT *
+FROM customers
+WHERE -1 NOT IN
+      (SELECT COALESCE(pid_display, -1)
+       FROM (SELECT DISTINCT pid AS pid_display FROM orders WHERE customers.cid = orders.cid) AS Table_A
                 RIGHT JOIN (SELECT pid from products where price < 5) AS Table_B ON Table_A.pid_display = Table_B.pid);
 
 
@@ -147,16 +148,16 @@ select 'Query 11' as '';
 -- The customers who ordered the largest number of products
 -- Les clients ayant commandé le plus grand nombre de produits
 SELECT c.*, count(DISTINCT o.pid) AS product_number
-FROM customers c JOIN orders o ON c.cid = o.cid
-GROUP BY c.cid ORDER BY count(DISTINCT o.pid) DESC LIMIT 1;
+FROM customers c
+         JOIN orders o ON c.cid = o.cid
+GROUP BY c.cid
+ORDER BY count(DISTINCT o.pid) DESC
+LIMIT 1;
 
 
 select 'Query 12' as '';
 -- The products ordered by all the customers living in 'France'
 -- Les produits commandés par tous les clients vivant en 'France'
-SELECT o.*
-FROM customers c JOIN orders o on c.cid = o.cid
-WHERE c.residence = 'France';
 
 
 select 'Query 13' as '';
@@ -164,18 +165,27 @@ select 'Query 13' as '';
 -- Les clients résidant dans les mêmes pays que les clients nommés 'Smith' (en excluant les Smith de la liste affichée)
 SELECT c.*
 FROM customers c
-WHERE c.residence = (SELECT residence FROM customers WHERE cname = 'Smith') AND c.cname <> 'Smith';
+WHERE c.residence = (SELECT residence FROM customers WHERE cname = 'Smith')
+  AND c.cname <> 'Smith';
 
 
 select 'Query 14' as '';
 -- The customers who ordered the largest total amount in 2014
 -- Les clients ayant commandé pour le plus grand montant total sur 2014
 SELECT c.*
-from customers c join
+from customers c
+         join
      (SELECT Cid_C, sum(tot1) as TOTAL_Spent
       from (select c.cid as Cid_C, o.cid as Cid_O, sum(p.price * o.quantity) as tot1
-            from orders o join customers c on o.cid = c.cid join products p on o.pid = p.pid and YEAR(o.odate) = 2014 group by o.cid, p.pid order by o.cid) AS X
-      WHERE Cid_C = Cid_O group by Cid_O order by TOTAL_Spent DESC LIMIT 1) AS Z
+            from orders o
+                     join customers c on o.cid = c.cid
+                     join products p on o.pid = p.pid and YEAR(o.odate) = 2014
+            group by o.cid, p.pid
+            order by o.cid) AS X
+      WHERE Cid_C = Cid_O
+      group by Cid_O
+      order by TOTAL_Spent DESC
+      LIMIT 1) AS Z
      on cid = Z.Cid_C;
 
 
@@ -188,7 +198,9 @@ select 'Query 16' as '';
 -- The products ordered by the customers living in 'USA'
 -- Les produits commandés par les clients résidant aux 'USA'
 SELECT DISTINCT p.*
-FROM products p JOIN orders o ON p.pid = o.pid JOIN customers c ON o.cid = c.cid
+FROM products p
+         JOIN orders o ON p.pid = o.pid
+         JOIN customers c ON o.cid = c.cid
 WHERE c.residence = (SELECT c.residence FROM customers c WHERE c.residence = 'USA');
 
 select 'Query 17' as '';
