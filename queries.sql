@@ -51,7 +51,7 @@ FROM Customers C
                     FROM Customers C
                              INNER JOIN Orders O ON C.cid = O.cid
                              INNER JOIN Products P ON O.pid = P.pid
-                    WHERE YEAR(O.odate) = 2013) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
+                    WHERE YEAR(O.odate) = 2014) R ON C.cid = R.cid AND X.pid = R.pid AND C.cname <> 'Smith'
 GROUP BY C.cid
 HAVING COUNT(X.pid) = COUNT(R.pid);
 
@@ -205,11 +205,13 @@ WHERE T_final.product_number =
 select 'Query 12' as '';
 -- The products ordered by all the customers living in 'France'
 -- Les produits commandés par tous les clients vivant en 'France'
-SELECT distinct p.*
+SELECT p.*
 from products p
-         inner join orders o on p.pid = o.pid
-         inner join (select * from customers where customers.residence = 'France') as customers1
-                    on customers1.cid = o.cid;
+         join orders o on p.pid = o.pid
+         join (select * from customers where customers.residence = 'FRANCE') as customers1 on customers1.cid = o.cid
+
+GROUP BY p.pid
+HAVING count(DISTINCT customers1.cid)=(SELECT count(c.cid) from customers c where c.residence='France');
 
 select 'Query 13' as '';
 -- The customers who live in the same country customers named 'Smith' live in (customers 'Smith' not shown in the result)
@@ -321,14 +323,8 @@ WHERE Number_of_customers = (SELECT MIN(Table_Final.Number_of_customers)
 select 'Query 20' as '';
 -- For all countries listed in tables products or customers, including unknown countries: the name of the country, the number of customers living in this country, the number of products originating from that country
 -- Pour chaque pays listé dans les tables products ou customers, y compris les pays inconnus : le nom du pays, le nombre de clients résidant dans ce pays, le nombre de produits provenant de ce pays
-select Table_hab.LOCATION, Table_hab.Nb_Habitant, count(TABLEC.ORIGIN) + SUM(case when (TABLEC.ORIGIN IS NULL and Table_hab.LOCATION IS NULL) then 1 else 0 end) as Nb_Product
-from(select TABLEA.*, count(TABLEB.RESIDENCE) + SUM(case when (TABLEB.RESIDENCE IS NULL and TABLEA.LOCATION IS NULL) then 1 else 0 end) as Nb_Habitant
-     from (select c.residence as LOCATION from customers c UNION select p.origin from products p) as TABLEA
-              LEFT JOIN (select c.residence as RESIDENCE from customers c) as TABLEB on (TABLEA.LOCATION = TABLEB.RESIDENCE)
-     GROUP BY TABLEA.LOCATION) AS Table_hab
-
-        LEFT JOIN (select p.origin as ORIGIN from products p) as TABLEC on (Table_hab.LOCATION = TABLEC.ORIGIN)
-GROUP BY Table_hab.LOCATION;
-
-
-
+SELECT countries.country,SUM(IFNULL(counter.cidamount,0)), SUM(IFNULL(counter.pidamount,0))
+FROM (SELECT p.origin as country FROM products p UNION SELECT c.residence as country FROM customers c)countries
+         JOIN (SELECT p.origin AS origin, COUNT(DISTINCT p.pid) AS pidamount, NULL AS cidamount FROM products p GROUP BY p.origin UNION SELECT c.residence AS origin, null as pidamount,COUNT(DISTINCT c.cid) AS cidamount FROM customers  c GROUP BY c.residence)counter
+              ON counter.origin=countries.country OR (countries.country IS NULL AND counter.origin IS NULL)
+GROUP BY countries.country;
